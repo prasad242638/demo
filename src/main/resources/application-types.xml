@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="csv" format="csv">
+      <types:shape format="weave" example="examples/plp.csv"><![CDATA[%dw 2.0
+
+type csv = Array<{|  id: Number,   name: String,   status: String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="json" format="json">
+      <types:shape format="weave" example="examples/plp-1.json"><![CDATA[%dw 2.0
+
+type json = Array<{|  EMP_ID: Number {"typeId": "int"},   EMP_NAME: String,   EMP_STATUS: String|}> {"example": "[{\\\"EMP_ID\\\":100,\\\"EMP_NAME\\\":\\\"PLP\\\",\\\"EMP_STATUS\\\":\\\"A\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#a37e4b27-e684-4650-af8c-ab2428c2ce7c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="csv"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
