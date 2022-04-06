@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="f1278704-5c25-4018-ac8a-b5d7e2cd2aa9" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="69c16e32-4583-4a0d-b60b-2044515698be" >
+		<db:oracle-connection host="localhost" user="system" password="prasad242638" />
+	</db:config>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="d1f50528-7aaf-4e88-9f0e-8effcd2cdd65" >
+		<db:oracle-connection host="localhost" user="system" password="prasad242638" instance="XE" />
+	</db:config>
+	<db:config name="Database_Config2" doc:name="Database Config" doc:id="1066ec99-5d34-4e73-a6c8-be175c377bc7" >
+		<db:oracle-connection host="localhost" user="system" password="prasad242638" instance="XE" />
+	</db:config>
+	<flow name="demoFlow" doc:id="9606c212-5d7b-46ba-9622-4948416d6719" >
+		<scheduler doc:name="Scheduler" doc:id="eb22cd5c-7209-43f1-ac9f-9ac06d929457" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="6000"/>
+			</scheduling-strategy>
+		</scheduler>
+		<file:read doc:name="Read" doc:id="fb8f428f-7005-40fe-a62f-f7350bbc2ec3" config-ref="File_Config" path="C:\Users\user\OneDrive\Desktop\PLP\emp\plp.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="a37e4b27-e684-4650-af8c-ab2428c2ce7c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	EMP_ID: payload01.id,
+	EMP_NAME: payload01.name,
+	EMP_STATUS: payload01.status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="bec70b73-0618-4430-a0b9-24ceb326c086" config-ref="Database_Config2">
+			<db:sql ><![CDATA[insert into plp(EMP_ID, EMP_NAME, EMP_STATUS) values(:EMP_ID, :EMP_NAME, :EMP_STATUS)]]></db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="7a772a93-c9e9-4ee1-a25b-ccfb0f277e21" message="#[payload]"/>
+	</flow>
+</mule>
